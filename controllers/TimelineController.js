@@ -4,10 +4,11 @@ const pool = require("../db.js");
 
 const getTimelines = async (req, res) => {
     const { latitude, longitude, radius } = req.query;
+    console.log(latitude, longitude, radius);
     try {
         if (latitude && longitude && radius) {
             const { rows } = await pool.query(
-                "SELECT * from timelines WHERE acos(sin(radians($1)) * sin(radians(latitude)) + cos(radians($1)) * cos(radians(latitude)) * cos( radians($2)- radians(longitude))) * 6371 <= $3;",
+                "SELECT * from timelines WHERE acos(sin(radians($1)) * sin(radians(latitude)) + cos(radians($1)) * cos(radians(latitude)) * cos( radians($2) - radians(longitude))) * 6371 <= $3",
                 [latitude, longitude, radius]
             );
             res.status(200).send(rows);
@@ -18,7 +19,7 @@ const getTimelines = async (req, res) => {
             res.status(200).send(rows);
         }
     } catch (err) {
-        res.status(500).send("Server error");
+        res.status(500).send(err);
     }
 };
 
