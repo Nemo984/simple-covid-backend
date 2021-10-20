@@ -4,7 +4,8 @@
     "description": "Backend for simple covid andriod app",
     "main": "index.js",
     "scripts": {
-        "start": "nodemon index.js"
+        "start": "nodemon index.js",
+        "test": "mocha"
     },
     "author": "Moe Thant Kyaw",
     "license": "ISC",
@@ -14,5 +15,10 @@
         "nodemon": "^2.0.13",
         "pg": "^8.7.1",
         "uuid": "^8.3.2"
+    },
+    "devDependencies": {
+        "chai": "^4.3.4",
+        "chai-http": "^4.3.0",
+        "mocha": "^9.1.3"
     }
 }
