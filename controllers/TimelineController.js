@@ -3,12 +3,12 @@ const { v4: uuidv4 } = require("uuid");
 const pool = require("../db.js");
 
 const getTimelines = async (req, res) => {
-    const { latitude, longitude, radius } = req.query;
+    const { lat, lon, radius } = req.query;
     try {
-        if (latitude && longitude && radius) {
+        if (lat && lon && radius) {
             const { rows } = await pool.query(
                 "SELECT date,address,latitude,longitude from timelines WHERE acos(sin(radians($1)) * sin(radians(latitude)) + cos(radians($1)) * cos(radians(latitude)) * cos( radians($2) - radians(longitude))) * 6371 <= $3",
-                [latitude, longitude, radius]
+                [lat, lon, radius]
             );
             res.status(200).send(rows);
         } else {
@@ -56,7 +56,7 @@ const updateTimeline = async (req, res) => {
     const { date, address, latitude, longitude } = req.body;
     try {
         const { rows } = await pool.query(
-            "UPDATE timelines SET date = $2, address = $3, latitude = $4, longitude = $5 WHERE id = $1 RETURNING date,address,latitude,longitude",
+            "UPDATE timelines SET date = $2, address = $3, latitude = $4, longitude = $5 WHERE id = $1 RETURNING id,date,address,latitude,longitude",
             [id, date, address, latitude, longitude]
         );
         res.status(200).send(rows[0]);
