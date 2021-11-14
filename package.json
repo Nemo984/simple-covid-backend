@@ -8,7 +8,7 @@
         "npm": "6.14.9"
     },
     "scripts": {
-        "start": "nodemon index.js",
+        "start": "node index.js",
         "test": "mocha"
     },
     "author": "Moe Thant Kyaw",
