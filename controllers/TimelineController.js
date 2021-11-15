@@ -5,16 +5,19 @@ const pool = require("../db.js");
 const getTimelines = async (req, res) => {
     const { lat, lon, radius } = req.query;
     const pastDays = req.query["past-days"];
+    console.log(pastDays);
+    let dateFrom;
     if (pastDays && pastDays > 0 && pastDays <= 365) {
-        let dateFrom = new Date();
+        dateFrom = new Date();
         dateFrom.setDate(dateFrom.getDate() - pastDays);
         dateFrom = dateFrom.toISOString().slice(0, 10);
     }
+    console.log(dateFrom);
     try {
         let response;
         if (lat && lon && radius && pastDays) {
             response = await pool.query(
-                "SELECT date,address,latitude,longitude from timelines WHERE acos(sin(radians($1)) * sin(radians(latitude)) + cos(radians($1)) * cos(radians(latitude)) * cos( radians($2) - radians(longitude))) * 6371 <= $3 AND date >= $4",
+                "SELECT date,address,latitude,longitude from timelines WHERE acos(sin(radians($1)) * sin(radians(latitude)) + cos(radians($1)) * cos(radians(latitude)) * cos( radians($2) - radians(longitude))) * 6371 <= $3 AND date >= $4::date",
                 [lat, lon, radius, dateFrom]
             );
         } else if (lat && lon && radius) {
@@ -38,7 +41,7 @@ const getTimeline = async (req, res) => {
     const { id } = req.params;
     try {
         const { rows } = await pool.query(
-            "SELECT id,date,address FROM timelines WHERE user_id = $1 ORDER BY date DESC",
+            "SELECT id,TO_CHAR(date, 'DD/MM/YYYY') as date,address FROM timelines WHERE user_id = $1 ORDER BY date DESC",
             [id]
         );
         res.status(200).send(rows);
@@ -53,7 +56,7 @@ const createTimeline = async (req, res) => {
     const uuid = uuidv4();
     try {
         const { rows } = await pool.query(
-            "INSERT INTO timelines (id,user_id,date,address,latitude,longitude) VALUES ($1,$2,$3,$4,$5,$6) RETURNING id,user_id AS uid,date,address,latitude,longitude",
+            "INSERT INTO timelines (id,user_id,date,address,latitude,longitude) VALUES ($1,$2,$3,$4,$5,$6) RETURNING id,user_id AS uid,TO_CHAR(date, 'DD/MM/YYYY') as date,address,latitude,longitude",
             [uuid, uid, date, address, latitude, longitude]
         );
         res.status(201).send(rows[0]);
